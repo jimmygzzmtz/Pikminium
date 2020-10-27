@@ -253,7 +253,15 @@ function moveToPos(){
     }
 }
 
+renderer.setAnimationLoop( function () {
 
+    moveToPos();
+    renderer.render( scene, camera );
+    camera.position.x = (pikminList[0].position.x);
+
+} );
+
+/*
 var animate = function () {
     requestAnimationFrame( animate );
     moveToPos();
@@ -263,6 +271,7 @@ var animate = function () {
 };
 
 animate();
+*/
 
 /*
 renderer.setAnimationLoop( function () {
