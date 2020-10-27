@@ -1,3 +1,7 @@
+//https://www.youtube.com/watch?v=H1etAFiAPYQ
+var audio = new Audio('assets/pikmin-music.mp3');
+audio.play();
+
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
@@ -48,6 +52,10 @@ var geometry = new THREE.PlaneGeometry( 40, 20, 32 );
 var material = new THREE.MeshBasicMaterial( {map: ground} );
 var plane = new THREE.Mesh( geometry, material );
 scene.add( plane );
+plane.position.z -= 0.18;
+
+//controls = new THREE.OrbitControls( camera, renderer.domElement );
+
 
 //creates pikmin, adds to scene and pikmin list
 function addPikmin(color, x, y){
@@ -57,7 +65,7 @@ function addPikmin(color, x, y){
     var pikmin = new THREE.Mesh( geometry, material );
     pikmin.position.x = x;
     pikmin.position.y = y;
-    pikmin.rotation.x = 1;
+    pikmin.rotation.x = 1.5;
     scene.add( pikmin );
     pikminList.push(pikmin);
     movingList.push(false);
@@ -80,12 +88,27 @@ function getPos( event ) {
 	// calculate mouse position in normalized device coordinates
     // (-1 to +1) for both components
 
+    //camera.rotation.x += 0.1;
+
+    //console.log("test");
+
     vec.set(( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
 
     vec.unproject( camera );
     vec.sub( camera.position ).normalize();
     var distance = - camera.position.z / vec.z;
     mousePos.copy( camera.position ).add( vec.multiplyScalar( distance ) );
+
+    //console.log(mousePos)
+    if(mousePos.x < -17){
+        mousePos.x = -17;
+    }
+    if(mousePos.x > 17){
+        mousePos.x = 17;
+    }
+    if(mousePos.y > 7){
+        mousePos.y = 7;
+    }
 
     for(var i = 0; i < pikminList.length; i++){
         movingList[i] = true;
@@ -173,6 +196,8 @@ var animate = function () {
     requestAnimationFrame( animate );
     moveToPos();
     renderer.render( scene, camera );
+    camera.position.x = (pikminList[0].position.x);
+    //controls.update();
 };
 
 animate();
