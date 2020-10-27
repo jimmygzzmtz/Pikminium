@@ -1,5 +1,6 @@
 //https://www.youtube.com/watch?v=H1etAFiAPYQ
 var audio = new Audio('assets/pikmin-music.mp3');
+audio.loop = true;
 audio.play();
 
 var scene = new THREE.Scene();
@@ -32,30 +33,77 @@ var colors = [0xff0000, 0x0000ff, 0xffff00, 0x4B0082, 0xffffff];
 camera.position.set(0, -8.5, 10);
 camera.lookAt(0, 0, 0);
 
-//https://www.textures-resource.com/gamecube/pikmin2/texture/1127/
-var ground = new THREE.TextureLoader().load( "./assets/ground.png" );
-ground.wrapS = THREE.RepeatWrapping;
-ground.wrapT = THREE.RepeatWrapping;
-ground.repeat.set( 5, 5 );
-
-//https://www.textures-resource.com/pc_computer/roblox/texture/9712/
-var sky = new THREE.TextureLoader().load( "./assets/sky.png" );
-sky.wrapS = THREE.RepeatWrapping;
-sky.wrapT = THREE.RepeatWrapping;
-
-scene.background = sky;
+//https://ekostories.com/pikmin-3-wallpaper-jpg/
+var skybox = new THREE.TextureLoader().load( "./assets/textures/wallpaper.png" );
+skybox.wrapS = THREE.RepeatWrapping;
+skybox.wrapT = THREE.RepeatWrapping;
+scene.background = skybox;
 //scene.background = texture;
 
 spawnPikmin(100);
-
-var geometry = new THREE.PlaneGeometry( 40, 20, 32 );
-var material = new THREE.MeshBasicMaterial( {map: ground} );
-var plane = new THREE.Mesh( geometry, material );
-scene.add( plane );
-plane.position.z -= 0.18;
+setUpScenery();
 
 //controls = new THREE.OrbitControls( camera, renderer.domElement );
 
+function loadTexture(textureName){
+    var newTexture = new THREE.TextureLoader().load( "./assets/textures/" + textureName + ".png" );
+    newTexture.wrapS = THREE.RepeatWrapping;
+    newTexture.wrapT = THREE.RepeatWrapping;
+    return newTexture;
+}
+
+function addBush(x, y, z, scale){
+    var geometry = new THREE.SphereGeometry( 5*scale, 32*scale, 32*scale );
+    //https://www.deviantart.com/kuschelirmel-stock/art/texture-leaves-33294198
+    var material = new THREE.MeshBasicMaterial( {map: loadTexture("tree_leaves")} );
+    var sphere = new THREE.Mesh( geometry, material );
+    sphere.position.x = x;
+    sphere.position.y = y;
+    sphere.position.z = z;
+    scene.add( sphere );
+}
+
+function addTree(x, y){
+    var geometry = new THREE.CylinderGeometry( 1, 1, 14, 8);
+    //https://www.klipartz.com/en/sticker-png-tonla
+    var material = new THREE.MeshBasicMaterial( { map: loadTexture("tree_bark") } );
+    var tree = new THREE.Mesh( geometry, material );
+    tree.position.x = x;
+    tree.position.y = y;
+    tree.rotation.x = 1.5;
+    scene.add( tree );
+
+    addBush(tree.position.x, tree.position.y, 10, 1);
+}
+
+function setUpScenery(){
+    //ground
+    //https://www.textures-resource.com/gamecube/pikmin2/texture/1127/
+    var ground = new THREE.TextureLoader().load( "./assets/textures/ground.png" );
+    ground.wrapS = THREE.RepeatWrapping;
+    ground.wrapT = THREE.RepeatWrapping;
+    ground.repeat.set( 5, 5 );
+
+    var geometry = new THREE.PlaneGeometry( 40, 20, 32 );
+    var material = new THREE.MeshBasicMaterial( {map: ground} );
+    var plane = new THREE.Mesh( geometry, material );
+    scene.add( plane );
+    plane.position.z -= 0.18;
+
+    addTree(0, 8);
+    addTree(-12, 8);
+    addTree(12, 8);
+    addTree(17, 1);
+    addTree(-17, 1);
+    addBush(17, 6, 0, 0.5);
+    addBush(6, 8, 0, 0.5);
+    addBush(-6, 8, 0, 0.5);
+    addBush(-17, 6, 0, 0.5);
+    addBush(-17, -8, 0, 0.5);
+    addBush(-17, -3, 0, 0.5);
+    addBush(17, -8, 0, 0.5);
+    addBush(17, -3, 0, 0.5);
+}
 
 //creates pikmin, adds to scene and pikmin list
 function addPikmin(color, x, y){
