@@ -1,11 +1,15 @@
+document.body.appendChild( VRButton.createButton( renderer ) );
+
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
 var renderer = new THREE.WebGLRenderer();
+renderer.xr.enabled = true;
+
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-camera.position.z = 10;
+camera.position.z = 15;
 
 var mouse = new THREE.Vector2();
 
@@ -23,7 +27,12 @@ var movingList = [];
 
 var colors = [0xff0000, 0x0000ff, 0xffff00, 0x4B0082, 0xffffff];
 
-spawnPikmin(150);
+camera.position.set(0, -8.5, 10);
+camera.lookAt(0, 0, 0);
+
+scene.background = new THREE.Color(.42, .86, .26);
+
+spawnPikmin(100);
 
 //creates pikmin, adds to scene and pikmin list
 function addPikmin(color, x, y){
@@ -142,6 +151,7 @@ function moveToPos(){
     }
 }
 
+/*
 var animate = function () {
     requestAnimationFrame( animate );
     moveToPos();
@@ -149,3 +159,12 @@ var animate = function () {
 };
 
 animate();
+*/
+
+renderer.setAnimationLoop( function () {
+
+    requestAnimationFrame( animate );
+    moveToPos();
+	renderer.render( scene, camera );
+
+} );
