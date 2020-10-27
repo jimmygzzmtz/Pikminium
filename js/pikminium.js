@@ -28,17 +28,36 @@ var colors = [0xff0000, 0x0000ff, 0xffff00, 0x4B0082, 0xffffff];
 camera.position.set(0, -8.5, 10);
 camera.lookAt(0, 0, 0);
 
-scene.background = new THREE.Color(.42, .86, .26);
+//https://www.textures-resource.com/gamecube/pikmin2/texture/1127/
+var ground = new THREE.TextureLoader().load( "./assets/ground.png" );
+ground.wrapS = THREE.RepeatWrapping;
+ground.wrapT = THREE.RepeatWrapping;
+ground.repeat.set( 5, 5 );
+
+//https://www.textures-resource.com/pc_computer/roblox/texture/9712/
+var sky = new THREE.TextureLoader().load( "./assets/sky.png" );
+sky.wrapS = THREE.RepeatWrapping;
+sky.wrapT = THREE.RepeatWrapping;
+
+scene.background = sky;
+//scene.background = texture;
 
 spawnPikmin(100);
 
+var geometry = new THREE.PlaneGeometry( 40, 20, 32 );
+var material = new THREE.MeshBasicMaterial( {map: ground} );
+var plane = new THREE.Mesh( geometry, material );
+scene.add( plane );
+
 //creates pikmin, adds to scene and pikmin list
 function addPikmin(color, x, y){
-    var geometry = new THREE.ConeGeometry( 0.5, 0.5, 3 );
+    //var geometry = new THREE.ConeGeometry( 0.5, 0.5, 3 );
+    var geometry = new THREE.CylinderGeometry( 0.1, 0.2, 0.5, 0.3);
     var material = new THREE.MeshBasicMaterial( { color: color } );
     var pikmin = new THREE.Mesh( geometry, material );
     pikmin.position.x = x;
     pikmin.position.y = y;
+    pikmin.rotation.x = 1;
     scene.add( pikmin );
     pikminList.push(pikmin);
     movingList.push(false);
