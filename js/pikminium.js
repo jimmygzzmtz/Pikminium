@@ -151,7 +151,7 @@ function moveToPos(){
     }
 }
 
-/*
+
 var animate = function () {
     requestAnimationFrame( animate );
     moveToPos();
@@ -159,8 +159,8 @@ var animate = function () {
 };
 
 animate();
-*/
 
+/*
 renderer.setAnimationLoop( function () {
 
     requestAnimationFrame( animate );
@@ -168,3 +168,4 @@ renderer.setAnimationLoop( function () {
 	renderer.render( scene, camera );
 
 } );
+*/
