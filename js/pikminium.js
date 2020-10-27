@@ -25,8 +25,8 @@ var movementSpeed = 0.03;
 var positionTolerance = 0.3;
 
 var pikminList = [];
-
 var movingList = [];
+var sceneryList = [];
 
 var colors = [0xff0000, 0x0000ff, 0xffff00, 0x4B0082, 0xffffff];
 
@@ -56,11 +56,12 @@ function addBush(x, y, z, scale){
     var geometry = new THREE.SphereGeometry( 5*scale, 32*scale, 32*scale );
     //https://www.deviantart.com/kuschelirmel-stock/art/texture-leaves-33294198
     var material = new THREE.MeshBasicMaterial( {map: loadTexture("tree_leaves")} );
-    var sphere = new THREE.Mesh( geometry, material );
-    sphere.position.x = x;
-    sphere.position.y = y;
-    sphere.position.z = z;
-    scene.add( sphere );
+    var bush = new THREE.Mesh( geometry, material );
+    bush.position.x = x;
+    bush.position.y = y;
+    bush.position.z = z;
+    scene.add( bush );
+    sceneryList.push(bush);
 }
 
 function addTree(x, y){
@@ -72,6 +73,7 @@ function addTree(x, y){
     tree.position.y = y;
     tree.rotation.x = 1.5;
     scene.add( tree );
+    sceneryList.push(tree);
 
     addBush(tree.position.x, tree.position.y, 10, 1);
 }
@@ -170,6 +172,11 @@ function isColliding(pikmin){
     for(pikmin2 of pikminList){
         //console.log(pikmin2);
         if(pikmin != pikmin2 && Math.abs(pikmin.position.x - pikmin2.position.x) < 0.3 && Math.abs(pikmin.position.y - pikmin2.position.y) < 0.3){
+            return true;
+        }
+    }
+    for(object of sceneryList){
+        if(Math.abs(pikmin.position.x - object.position.x) < 1 && Math.abs(pikmin.position.y - object.position.y) < 1){
             return true;
         }
     }
