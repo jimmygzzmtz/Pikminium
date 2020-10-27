@@ -1,3 +1,6 @@
+import * as THREE from '../js/three.module.js';
+import { VRButton } from '../js/VRButton.js';
+
 //https://www.youtube.com/watch?v=H1etAFiAPYQ
 var audio = new Audio('assets/music/pikmin-music.mp3');
 audio.loop = true;
@@ -8,6 +11,7 @@ var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHe
 
 var renderer = new THREE.WebGLRenderer();
 renderer.xr.enabled = true;
+document.body.appendChild(VRButton.createButton(renderer));
 
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
@@ -127,7 +131,8 @@ function spawnPikmin(num){
         var color = colors[Math.floor((Math.random() * colors.length))];
         addPikmin(color, 0, 0);
     }
-    for(pikmin of pikminList){
+    for(var j = 0; j < pikminList.length; j++){
+        var pikmin = pikminList[j];
         fixCollision(pikmin);
     }
 }
@@ -169,13 +174,15 @@ function getPos( event ) {
 
 //checks if pikmin is colliding with another pikmin
 function isColliding(pikmin){
-    for(pikmin2 of pikminList){
+    for(var j = 0; j < pikminList.length; j++){
+        var pikmin2 = pikminList[j];
         //console.log(pikmin2);
         if(pikmin != pikmin2 && Math.abs(pikmin.position.x - pikmin2.position.x) < 0.3 && Math.abs(pikmin.position.y - pikmin2.position.y) < 0.3){
             return true;
         }
     }
-    for(object of sceneryList){
+    for(var i = 0; i < sceneryList.length; i++){
+        var object = sceneryList[i];
         if(Math.abs(pikmin.position.x - object.position.x) < 1 && Math.abs(pikmin.position.y - object.position.y) < 1){
             return true;
         }
