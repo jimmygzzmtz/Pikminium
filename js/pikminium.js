@@ -1,5 +1,5 @@
 //https://www.youtube.com/watch?v=H1etAFiAPYQ
-var audio = new Audio('assets/pikmin-music.mp3');
+var audio = new Audio('assets/music/pikmin-music.mp3');
 audio.loop = true;
 audio.play();
 
