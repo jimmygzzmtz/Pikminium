@@ -32,7 +32,7 @@ var pikminList = [];
 var movingList = [];
 var sceneryList = [];
 
-var colors = [0xff0000, 0x0000ff, 0xffff00, 0x4B0082, 0xffffff];
+var colors = [0xff0000, 0x0000ff, 0xffff00, 0x4B0082, 0xffffff, 0x696969, 0xff69b4];
 
 camera.position.set(0, -8.5, 10);
 camera.lookAt(0, 0, 0);
@@ -113,16 +113,69 @@ function setUpScenery(){
 
 //creates pikmin, adds to scene and pikmin list
 function addPikmin(color, x, y){
+    /*
     //var geometry = new THREE.ConeGeometry( 0.5, 0.5, 3 );
-    var geometry = new THREE.CylinderGeometry( 0.1, 0.2, 0.5, 0.3);
-    var material = new THREE.MeshBasicMaterial( { color: color } );
+    var geometry = new THREE.SphereGeometry( 0.5, 32, 32 );
+    var material = new THREE.MeshBasicMaterial( {color: color} );
     var pikmin = new THREE.Mesh( geometry, material );
+    pikmin.scale.set(0.3, 0.3, 1)
     pikmin.position.x = x;
     pikmin.position.y = y;
-    pikmin.rotation.x = 1.5;
+    //pikmin.rotation.x = 1.5;
     scene.add( pikmin );
     pikminList.push(pikmin);
     movingList.push(false);
+    */
+
+   var leaf = new THREE.Mesh(new THREE.PlaneGeometry( 0.25, 0.4, 0.5 ));
+   leaf.rotation.x += 1.5;
+   leaf.position.z += 2;
+   var antenna = new THREE.Mesh(new THREE.SphereGeometry( 0.5, 32, 32 ));
+   antenna.scale.set(0.1,0.1,0.8);
+   antenna.position.z += 1.5;
+   var head = new THREE.Mesh(new THREE.SphereGeometry( 0.5, 32, 32 ));
+   head.position.z += 1;
+   head.scale.set(0.4,0.4,0.7);
+   var body = new THREE.Mesh(new THREE.SphereGeometry( 0.5, 32, 32 ));
+   body.position.z += 0.5;
+   body.scale.set(0.3,0.3,1);
+   var leg1 = new THREE.Mesh(new THREE.SphereGeometry( 0.5, 32, 32 ));
+   leg1.position.z += 0;
+   leg1.position.x += 0.1;
+   leg1.scale.set(0.1,0.1,0.8);
+   var leg2 = new THREE.Mesh(new THREE.SphereGeometry( 0.5, 32, 32 ));
+   leg2.position.z += 0;
+   leg2.position.x -= 0.1;
+   leg2.scale.set(0.1,0.1,0.8);
+   var arm1 = new THREE.Mesh(new THREE.SphereGeometry( 0.5, 32, 32 ));
+   arm1.position.z += 0.5;
+   arm1.position.x += 0.15;
+   arm1.rotation.y -= 0.5;
+   arm1.scale.set(0.1,0.1,0.6);
+   var arm2 = new THREE.Mesh(new THREE.SphereGeometry( 0.5, 32, 32 ));
+   arm2.position.z += 0.5;
+   arm2.position.x -= 0.15;
+   arm2.rotation.y += 0.5;
+   arm2.scale.set(0.1,0.1,0.6);
+   
+   var geom = new THREE.Geometry();
+   //geom.mergeMesh(leaf);
+   geom.mergeMesh(antenna);
+   geom.mergeMesh(head);
+   geom.mergeMesh(body);
+   geom.mergeMesh(leg1);
+   geom.mergeMesh(leg2);
+   geom.mergeMesh(arm1);
+   geom.mergeMesh(arm2);
+   geom.mergeVertices();
+   var material = new THREE.MeshBasicMaterial( {color: color} );
+   var pikmin = new THREE.Mesh(geom, material);
+   pikmin.scale.set(0.8, 0.8, 0.8)
+   pikmin.position.x = x;
+   pikmin.position.y = y;
+   scene.add(pikmin);
+   pikminList.push(pikmin);
+   movingList.push(false);
 }
 
 //spawns "num" amount of pikmin
