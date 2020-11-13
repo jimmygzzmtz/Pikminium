@@ -2,9 +2,13 @@ import * as THREE from '../js/three.module.js';
 import { VRButton } from '../js/VRButton.js';
 
 //https://www.youtube.com/watch?v=H1etAFiAPYQ
-var audio = new Audio('assets/music/pikmin-music.mp3');
-audio.loop = true;
-audio.play();
+var music = new Audio('assets/music/pikmin-music.mp3');
+music.loop = true;
+music.play();
+
+//https://www.myinstants.com/instant/pikmin-louie-whistle-14889/
+var whistle = new Audio('assets/music/pikmin-whistle.mp3');
+whistle.volume = 0.3;
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -32,13 +36,13 @@ var pikminList = [];
 var movingList = [];
 var sceneryList = [];
 
-var colors = [0xff0000, 0x0000ff, 0xffff00, 0x4B0082, 0xffffff, 0x696969, 0xff69b4];
+var colors = [0xff0000, 0x0000ff, 0xffff00, 0x4B0082, 0x696969, 0xff69b4, 0xffffff];
 
 camera.position.set(0, -8.5, 10);
 camera.lookAt(0, 0, 0);
 
-//https://ekostories.com/pikmin-3-wallpaper-jpg/
-var skybox = new THREE.TextureLoader().load( "./assets/textures/wallpaper.png" );
+//https://www.mobygames.com/images/promo/original/1478917051-108691969.jpg
+var skybox = new THREE.TextureLoader().load( "./assets/textures/wallpaper.jpg" );
 skybox.wrapS = THREE.RepeatWrapping;
 skybox.wrapT = THREE.RepeatWrapping;
 scene.background = skybox;
@@ -48,6 +52,48 @@ spawnPikmin(100);
 setUpScenery();
 
 //controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+const geometrywhistle = new THREE.RingGeometry( 2.5, 3, 30 );
+const materialwhistle = new THREE.MeshBasicMaterial( { color: 0xffa500, side: THREE.DoubleSide } );
+const ringWhistleMesh = new THREE.Mesh( geometrywhistle, materialwhistle );
+
+function addFlower(x, y){
+    var geometry = new THREE.CylinderGeometry( 0.5, 0.5, 5, 8);
+    var material = new THREE.MeshBasicMaterial( {color: 0x006600} );
+    var plant = new THREE.Mesh( geometry, material );
+    plant.position.x = x;
+    plant.position.y = y;
+    plant.rotation.x = 1.5;
+    scene.add( plant );
+    sceneryList.push(plant);
+
+    geometry = new THREE.SphereGeometry( 5*0.2, 32*0.2, 32*0.2 );
+    material = new THREE.MeshBasicMaterial( {color: colors[Math.floor((Math.random() * 6))]} );
+    var circle = new THREE.Mesh( geometry, material );
+    circle.position.x = x;
+    circle.position.y = y;
+    circle.position.z = 3;
+    scene.add( circle );
+    sceneryList.push(circle);
+
+    const geometryFlowerLeaves = new THREE.RingGeometry( 0.1, 1.5, 30 );
+    const materialFlowerLeaves = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
+    var flowerLeaves = new THREE.Mesh( geometryFlowerLeaves, materialFlowerLeaves );
+    flowerLeaves.position.x = x;
+    flowerLeaves.position.y = y;
+    flowerLeaves.position.z = 3;
+    flowerLeaves.rotation.x = 1;
+    scene.add( flowerLeaves );
+    sceneryList.push(flowerLeaves);
+}
+
+function showWhistle(x, y, z){
+    scene.remove(ringWhistleMesh);
+    ringWhistleMesh.position.x = x;
+    ringWhistleMesh.position.y = y;
+    ringWhistleMesh.position.z = z;
+    scene.add(ringWhistleMesh);
+}
 
 function loadTexture(textureName){
     var newTexture = new THREE.TextureLoader().load( "./assets/textures/" + textureName + ".png" );
@@ -101,6 +147,15 @@ function setUpScenery(){
     addTree(12, 8);
     addTree(17, 1);
     addTree(-17, 1);
+    addFlower(17, 6);
+    addFlower(6, 8);
+    addFlower(-6, 8);
+    addFlower(-17, 6);
+    addFlower(-17, -8);
+    addFlower(-17, -3);
+    addFlower(17, -8);
+    addFlower(17, -3);
+    /*
     addBush(17, 6, 0, 0.5);
     addBush(6, 8, 0, 0.5);
     addBush(-6, 8, 0, 0.5);
@@ -109,6 +164,7 @@ function setUpScenery(){
     addBush(-17, -3, 0, 0.5);
     addBush(17, -8, 0, 0.5);
     addBush(17, -3, 0, 0.5);
+    */
 }
 
 //creates pikmin, adds to scene and pikmin list
@@ -200,6 +256,8 @@ function getPos( event ) {
 
     //console.log("test");
 
+    whistle.play();
+
     vec.set(( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
 
     vec.unproject( camera );
@@ -217,6 +275,9 @@ function getPos( event ) {
     if(mousePos.y > 7){
         mousePos.y = 7;
     }
+
+    //add ring whistle
+    showWhistle(mousePos.x, mousePos.y, mousePos.z);
 
     for(var i = 0; i < pikminList.length; i++){
         movingList[i] = true;
@@ -299,6 +360,7 @@ function moveToPos(){
             if(moveX == true && moveY == true){
                 movingList[i] = false;
                 //console.log("stopped moving");
+                scene.remove(ringWhistleMesh);
                 fixCollision(pikmin);
             }
         }
