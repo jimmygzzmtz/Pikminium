@@ -1,5 +1,4 @@
 import * as THREE from '../js/three.module.js';
-import { VRButton } from '../js/VRButton.js';
 
 //https://www.youtube.com/watch?v=H1etAFiAPYQ
 var music = new Audio('assets/music/pikmin-music.mp3');
@@ -15,7 +14,6 @@ var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHe
 
 var renderer = new THREE.WebGLRenderer();
 renderer.xr.enabled = true;
-//document.body.appendChild(VRButton.createButton(renderer));
 
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
@@ -26,8 +24,8 @@ var mouse = new THREE.Vector2();
 
 window.addEventListener( 'click', getPos );
 
-var vec = new THREE.Vector3(); // create once and reuse
-var mousePos = new THREE.Vector3(); // create once and reuse
+var vec = new THREE.Vector3();
+var mousePos = new THREE.Vector3();
 
 var movementSpeed = 0.03;
 var positionTolerance = 0.3;
@@ -46,17 +44,62 @@ var skybox = new THREE.TextureLoader().load( "./assets/textures/wallpaper.jpg" )
 skybox.wrapS = THREE.RepeatWrapping;
 skybox.wrapT = THREE.RepeatWrapping;
 scene.background = skybox;
-//scene.background = texture;
 
 spawnPikmin(100);
 setUpScenery();
-
-//controls = new THREE.OrbitControls( camera, renderer.domElement );
 
 const geometrywhistle = new THREE.RingGeometry( 2.5, 3, 30 );
 const materialwhistle = new THREE.MeshBasicMaterial( { color: 0xffa500, side: THREE.DoubleSide } );
 const ringWhistleMesh = new THREE.Mesh( geometrywhistle, materialwhistle );
 
+// adds bulborb mesh and texture to scene in sent position
+function addBulborb(x, y){
+    var geometry = new THREE.SphereGeometry( 5*0.5, 32*0.5, 32*0.2 );
+    //texture from https://www.pinterest.com/pin/473159504573928076/
+    var material = new THREE.MeshBasicMaterial( {map: loadTexture("bulborb_polka_dot")} );
+    var body = new THREE.Mesh( geometry, material );
+    body.position.x = x;
+    body.position.y = y;
+    body.position.z = 3;
+    body.rotation.y = -1.5;
+    scene.add( body );
+    sceneryList.push(body);
+
+    geometry = new THREE.CylinderGeometry( 0.4, 0.4, 11.5, 5);
+    material = new THREE.MeshBasicMaterial( {color: 0xb97a57} );
+    var leg1 = new THREE.Mesh( geometry, material );
+    leg1.position.x = x+1;
+    leg1.position.y = y-1;
+    leg1.rotation.x = 1.5;
+    scene.add( leg1 );
+    sceneryList.push(leg1);
+    var leg2 = new THREE.Mesh( geometry, material );
+    leg2.position.x = x-1;
+    leg2.position.y = y-1;
+    leg2.rotation.x = 1.5;
+    scene.add( leg2 );
+    sceneryList.push(leg2);
+
+    geometry = new THREE.SphereGeometry( 5*0.1, 32*0.2, 32*0.2 );
+    material = new THREE.MeshBasicMaterial( {map: loadTexture("eye")} );
+    var eye1 = new THREE.Mesh( geometry, material );
+    eye1.position.x = x+1;
+    eye1.position.y = y-0.7;
+    eye1.rotation.z = -1.5;
+    eye1.position.z = 6;
+    scene.add( eye1 );
+    sceneryList.push(eye1);
+    var eye2 = new THREE.Mesh( geometry, material );
+    eye2.position.x = x-1;
+    eye2.position.y = y-0.7;
+    eye2.rotation.z = -1.5;
+    eye2.position.z = 6;
+    scene.add( eye2 );
+    sceneryList.push(eye2);
+
+}
+
+// adds flower mesh and texture to scene in sent position
 function addFlower(x, y){
     var geometry = new THREE.CylinderGeometry( 0.5, 0.5, 5, 8);
     var material = new THREE.MeshBasicMaterial( {color: 0x006600} );
@@ -87,6 +130,7 @@ function addFlower(x, y){
     sceneryList.push(flowerLeaves);
 }
 
+// shows whistle pointer in sent position
 function showWhistle(x, y, z){
     scene.remove(ringWhistleMesh);
     ringWhistleMesh.position.x = x;
@@ -95,6 +139,7 @@ function showWhistle(x, y, z){
     scene.add(ringWhistleMesh);
 }
 
+// loads texture from assets
 function loadTexture(textureName){
     var newTexture = new THREE.TextureLoader().load( "./assets/textures/" + textureName + ".png" );
     newTexture.wrapS = THREE.RepeatWrapping;
@@ -102,6 +147,7 @@ function loadTexture(textureName){
     return newTexture;
 }
 
+// adds bush mesh and texture to scene in sent position
 function addBush(x, y, z, scale){
     var geometry = new THREE.SphereGeometry( 5*scale, 32*scale, 32*scale );
     //https://www.deviantart.com/kuschelirmel-stock/art/texture-leaves-33294198
@@ -114,9 +160,10 @@ function addBush(x, y, z, scale){
     sceneryList.push(bush);
 }
 
+// adds tree mesh and texture to scene in sent position
 function addTree(x, y){
     var geometry = new THREE.CylinderGeometry( 1, 1, 14, 8);
-    //https://www.klipartz.com/en/sticker-png-tonla
+    // https://www.klipartz.com/en/sticker-png-tonla
     var material = new THREE.MeshBasicMaterial( { map: loadTexture("tree_bark") } );
     var tree = new THREE.Mesh( geometry, material );
     tree.position.x = x;
@@ -128,9 +175,9 @@ function addTree(x, y){
     addBush(tree.position.x, tree.position.y, 10, 1);
 }
 
+// sets up scenery mesh and textures by calling functions
 function setUpScenery(){
-    //ground
-    //https://www.textures-resource.com/gamecube/pikmin2/texture/1127/
+    // https://www.textures-resource.com/gamecube/pikmin2/texture/1127/
     var ground = new THREE.TextureLoader().load( "./assets/textures/ground.png" );
     ground.wrapS = THREE.RepeatWrapping;
     ground.wrapT = THREE.RepeatWrapping;
@@ -155,33 +202,13 @@ function setUpScenery(){
     addFlower(-17, -3);
     addFlower(17, -8);
     addFlower(17, -3);
-    /*
-    addBush(17, 6, 0, 0.5);
-    addBush(6, 8, 0, 0.5);
-    addBush(-6, 8, 0, 0.5);
-    addBush(-17, 6, 0, 0.5);
-    addBush(-17, -8, 0, 0.5);
-    addBush(-17, -3, 0, 0.5);
-    addBush(17, -8, 0, 0.5);
-    addBush(17, -3, 0, 0.5);
-    */
+
+    addBulborb(-9,0);
+    addBulborb(9,0);
 }
 
-//creates pikmin, adds to scene and pikmin list
+// creates pikmin, adds to scene and pikmin list
 function addPikmin(color, x, y){
-    /*
-    //var geometry = new THREE.ConeGeometry( 0.5, 0.5, 3 );
-    var geometry = new THREE.SphereGeometry( 0.5, 32, 32 );
-    var material = new THREE.MeshBasicMaterial( {color: color} );
-    var pikmin = new THREE.Mesh( geometry, material );
-    pikmin.scale.set(0.3, 0.3, 1)
-    pikmin.position.x = x;
-    pikmin.position.y = y;
-    //pikmin.rotation.x = 1.5;
-    scene.add( pikmin );
-    pikminList.push(pikmin);
-    movingList.push(false);
-    */
 
    var leaf = new THREE.Mesh(new THREE.PlaneGeometry( 0.25, 0.4, 0.5 ));
    leaf.rotation.x += 1.5;
@@ -215,7 +242,6 @@ function addPikmin(color, x, y){
    arm2.scale.set(0.1,0.1,0.6);
    
    var geom = new THREE.Geometry();
-   //geom.mergeMesh(leaf);
    geom.mergeMesh(antenna);
    geom.mergeMesh(head);
    geom.mergeMesh(body);
@@ -234,7 +260,7 @@ function addPikmin(color, x, y){
    movingList.push(false);
 }
 
-//spawns "num" amount of pikmin
+// spawns "num" amount of pikmin
 function spawnPikmin(num){
     for(var i = 0; i < num; i++){
         var color = colors[Math.floor((Math.random() * colors.length))];
@@ -246,15 +272,9 @@ function spawnPikmin(num){
     }
 }
 
-//gets mouse poition in normalized device coordinates
-//https://stackoverflow.com/questions/13055214/mouse-canvas-x-y-to-three-js-world-x-y-z
+// gets mouse poition in normalized device coordinates
+// https://stackoverflow.com/questions/13055214/mouse-canvas-x-y-to-three-js-world-x-y-z
 function getPos( event ) {
-	// calculate mouse position in normalized device coordinates
-    // (-1 to +1) for both components
-
-    //camera.rotation.x += 0.1;
-
-    //console.log("test");
 
     whistle.play();
 
@@ -265,7 +285,6 @@ function getPos( event ) {
     var distance = - camera.position.z / vec.z;
     mousePos.copy( camera.position ).add( vec.multiplyScalar( distance ) );
 
-    //console.log(mousePos)
     if(mousePos.x < -17){
         mousePos.x = -17;
     }
@@ -276,21 +295,19 @@ function getPos( event ) {
         mousePos.y = 7;
     }
 
-    //add ring whistle
+    // add ring whistle
     showWhistle(mousePos.x, mousePos.y, mousePos.z);
 
     for(var i = 0; i < pikminList.length; i++){
         movingList[i] = true;
-        //console.log("started moving");
     }
 
 }
 
-//checks if pikmin is colliding with another pikmin
+// checks if pikmin is colliding with another pikmin
 function isColliding(pikmin){
     for(var j = 0; j < pikminList.length; j++){
         var pikmin2 = pikminList[j];
-        //console.log(pikmin2);
         if(pikmin != pikmin2 && Math.abs(pikmin.position.x - pikmin2.position.x) < 0.3 && Math.abs(pikmin.position.y - pikmin2.position.y) < 0.3){
             return true;
         }
@@ -304,7 +321,7 @@ function isColliding(pikmin){
     return false;
 }
 
-//fixes collision by moving pikmin to a free place
+// fixes collision by moving pikmin to a free place
 function fixCollision(pikmin){
    while(isColliding(pikmin) == true){
         var choose = Math.floor((Math.random() * 4) + 1);
@@ -325,7 +342,7 @@ function fixCollision(pikmin){
    }
 }
 
-//moves every pikmin to the mouse position, also fixes collision
+// moves every pikmin to the mouse position, also fixes collision
 function moveToPos(){
     for(var i = 0; i < pikminList.length; i++){
         var pikmin = pikminList[i];
@@ -359,7 +376,6 @@ function moveToPos(){
 
             if(moveX == true && moveY == true){
                 movingList[i] = false;
-                //console.log("stopped moving");
                 scene.remove(ringWhistleMesh);
                 fixCollision(pikmin);
             }
@@ -368,6 +384,7 @@ function moveToPos(){
     }
 }
 
+// moves pikmin and camera to click position every animation loop
 renderer.setAnimationLoop( function () {
 
     moveToPos();
@@ -375,25 +392,3 @@ renderer.setAnimationLoop( function () {
     camera.position.x = (pikminList[0].position.x);
 
 } );
-
-/*
-var animate = function () {
-    requestAnimationFrame( animate );
-    moveToPos();
-    renderer.render( scene, camera );
-    camera.position.x = (pikminList[0].position.x);
-    //controls.update();
-};
-
-animate();
-*/
-
-/*
-renderer.setAnimationLoop( function () {
-
-    requestAnimationFrame( animate );
-    moveToPos();
-	renderer.render( scene, camera );
-
-} );
-*/
