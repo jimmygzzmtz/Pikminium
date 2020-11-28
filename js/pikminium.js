@@ -197,6 +197,7 @@ function addTree(x, y){
     var material = new THREE.MeshPhongMaterial( { map: loadTexture("tree_bark") } );
     var tree = new THREE.Mesh( geometry, material );
     tree.castShadow = true;
+    tree.receiveShadow = true;
     tree.position.x = x;
     tree.position.y = y;
     tree.rotation.x = 1.5;
