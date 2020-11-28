@@ -5,6 +5,11 @@ var music = new Audio('assets/music/pikmin-music.mp3');
 music.loop = true;
 music.play();
 
+//https://www.youtube.com/watch?v=EpHpmzpvaRo
+var intro = new Audio('assets/music/pikmin-intro.mp3');
+intro.volume = 0.3;
+intro.play();
+
 //https://www.myinstants.com/instant/pikmin-louie-whistle-14889/
 var whistle = new Audio('assets/music/pikmin-whistle.mp3');
 whistle.volume = 0.3;
@@ -14,6 +19,7 @@ var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHe
 
 var renderer = new THREE.WebGLRenderer();
 renderer.xr.enabled = true;
+renderer.shadowMap.enabled = true;
 
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
@@ -52,12 +58,27 @@ const geometrywhistle = new THREE.RingGeometry( 2.5, 3, 30 );
 const materialwhistle = new THREE.MeshBasicMaterial( { color: 0xffa500, side: THREE.DoubleSide } );
 const ringWhistleMesh = new THREE.Mesh( geometrywhistle, materialwhistle );
 
+// used for lighting and to generate shadows
+const color = 0xFFFFFF;
+const intensity = 1;
+const light = new THREE.DirectionalLight(color, intensity);
+light.position.set(0, -20, 10);
+light.target.position.set(0, 0, 0);
+light.intensity = 1.4;
+light.castShadow = true;
+light.shadow.camera.left = -20;
+light.shadow.camera.right = 20;
+light.shadow.camera.top = 20;
+scene.add(light);
+scene.add(light.target);
+
 // adds bulborb mesh and texture to scene in sent position
 function addBulborb(x, y){
     var geometry = new THREE.SphereGeometry( 5*0.5, 32*0.5, 32*0.2 );
     //texture from https://www.pinterest.com/pin/473159504573928076/
-    var material = new THREE.MeshBasicMaterial( {map: loadTexture("bulborb_polka_dot")} );
+    var material = new THREE.MeshPhongMaterial( {map: loadTexture("bulborb_polka_dot")} );
     var body = new THREE.Mesh( geometry, material );
+    body.castShadow = true;
     body.position.x = x;
     body.position.y = y;
     body.position.z = 3;
@@ -66,14 +87,16 @@ function addBulborb(x, y){
     sceneryList.push(body);
 
     geometry = new THREE.CylinderGeometry( 0.4, 0.4, 11.5, 5);
-    material = new THREE.MeshBasicMaterial( {color: 0xb97a57} );
+    material = new THREE.MeshPhongMaterial( {color: 0xb97a57} );
     var leg1 = new THREE.Mesh( geometry, material );
+    leg1.castShadow = true;
     leg1.position.x = x+1;
     leg1.position.y = y-1;
     leg1.rotation.x = 1.5;
     scene.add( leg1 );
     sceneryList.push(leg1);
     var leg2 = new THREE.Mesh( geometry, material );
+    leg2.castShadow = true;
     leg2.position.x = x-1;
     leg2.position.y = y-1;
     leg2.rotation.x = 1.5;
@@ -81,7 +104,7 @@ function addBulborb(x, y){
     sceneryList.push(leg2);
 
     geometry = new THREE.SphereGeometry( 5*0.1, 32*0.2, 32*0.2 );
-    material = new THREE.MeshBasicMaterial( {map: loadTexture("eye")} );
+    material = new THREE.MeshPhongMaterial( {map: loadTexture("eye")} );
     var eye1 = new THREE.Mesh( geometry, material );
     eye1.position.x = x+1;
     eye1.position.y = y-0.7;
@@ -102,8 +125,10 @@ function addBulborb(x, y){
 // adds flower mesh and texture to scene in sent position
 function addFlower(x, y){
     var geometry = new THREE.CylinderGeometry( 0.5, 0.5, 5, 8);
-    var material = new THREE.MeshBasicMaterial( {color: 0x006600} );
+    var material = new THREE.MeshPhongMaterial( {color: 0x006600} );
     var plant = new THREE.Mesh( geometry, material );
+    plant.receiveShadow = true;
+    plant.castShadow = true;
     plant.position.x = x;
     plant.position.y = y;
     plant.rotation.x = 1.5;
@@ -111,8 +136,10 @@ function addFlower(x, y){
     sceneryList.push(plant);
 
     geometry = new THREE.SphereGeometry( 5*0.2, 32*0.2, 32*0.2 );
-    material = new THREE.MeshBasicMaterial( {color: colors[Math.floor((Math.random() * 6))]} );
+    material = new THREE.MeshPhongMaterial( {color: colors[Math.floor((Math.random() * 6))]} );
     var circle = new THREE.Mesh( geometry, material );
+    circle.receiveShadow = true;
+    circle.castShadow = true;
     circle.position.x = x;
     circle.position.y = y;
     circle.position.z = 3;
@@ -120,8 +147,10 @@ function addFlower(x, y){
     sceneryList.push(circle);
 
     const geometryFlowerLeaves = new THREE.RingGeometry( 0.1, 1.5, 30 );
-    const materialFlowerLeaves = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
+    const materialFlowerLeaves = new THREE.MeshPhongMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
     var flowerLeaves = new THREE.Mesh( geometryFlowerLeaves, materialFlowerLeaves );
+    flowerLeaves.receiveShadow = true;
+    flowerLeaves.castShadow = true;
     flowerLeaves.position.x = x;
     flowerLeaves.position.y = y;
     flowerLeaves.position.z = 3;
@@ -151,8 +180,9 @@ function loadTexture(textureName){
 function addBush(x, y, z, scale){
     var geometry = new THREE.SphereGeometry( 5*scale, 32*scale, 32*scale );
     //https://www.deviantart.com/kuschelirmel-stock/art/texture-leaves-33294198
-    var material = new THREE.MeshBasicMaterial( {map: loadTexture("tree_leaves")} );
+    var material = new THREE.MeshPhongMaterial( {map: loadTexture("tree_leaves")} );
     var bush = new THREE.Mesh( geometry, material );
+    bush.castShadow = true;
     bush.position.x = x;
     bush.position.y = y;
     bush.position.z = z;
@@ -164,8 +194,9 @@ function addBush(x, y, z, scale){
 function addTree(x, y){
     var geometry = new THREE.CylinderGeometry( 1, 1, 14, 8);
     // https://www.klipartz.com/en/sticker-png-tonla
-    var material = new THREE.MeshBasicMaterial( { map: loadTexture("tree_bark") } );
+    var material = new THREE.MeshPhongMaterial( { map: loadTexture("tree_bark") } );
     var tree = new THREE.Mesh( geometry, material );
+    tree.castShadow = true;
     tree.position.x = x;
     tree.position.y = y;
     tree.rotation.x = 1.5;
@@ -184,8 +215,9 @@ function setUpScenery(){
     ground.repeat.set( 5, 5 );
 
     var geometry = new THREE.PlaneGeometry( 40, 20, 32 );
-    var material = new THREE.MeshBasicMaterial( {map: ground} );
+    var material = new THREE.MeshPhongMaterial( {map: ground} );
     var plane = new THREE.Mesh( geometry, material );
+    plane.receiveShadow = true;
     scene.add( plane );
     plane.position.z -= 0.18;
 
@@ -250,8 +282,9 @@ function addPikmin(color, x, y){
    geom.mergeMesh(arm1);
    geom.mergeMesh(arm2);
    geom.mergeVertices();
-   var material = new THREE.MeshBasicMaterial( {color: color} );
+   var material = new THREE.MeshPhongMaterial( {color: color} );
    var pikmin = new THREE.Mesh(geom, material);
+   pikmin.receiveShadow = true;
    pikmin.scale.set(0.8, 0.8, 0.8)
    pikmin.position.x = x;
    pikmin.position.y = y;
